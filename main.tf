@@ -18,4 +18,5 @@ resource "aws_elastic_beanstalk_application" "default" {
     max_count             = "${var.appversion_lifecycle_max_count}"
     delete_source_from_s3 = "${var.appversion_lifecycle_delete_source_from_s3}"
   }
+  tags        = "${module.label.tags}"
 }
