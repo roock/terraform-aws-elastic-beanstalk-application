@@ -14,9 +14,62 @@ resource "aws_elastic_beanstalk_application" "default" {
   description = "${var.description}"
 
   appversion_lifecycle {
-    service_role          = "${var.appversion_lifecycle_service_role_arn}"
+    service_role           = "${var.create_service_role == "false" ? var.appversion_lifecycle_service_role_arn : data.aws_iam_role.appversion_lifecycle.arn }"
     max_count             = "${var.appversion_lifecycle_max_count}"
     delete_source_from_s3 = "${var.appversion_lifecycle_delete_source_from_s3}"
   }
   tags        = "${module.label.tags}"
 }
+
+data "aws_iam_role" "appversion_lifecycle" {
+  name               = "${module.label.id}"
+  depends_on = ["aws_iam_role.appversion_lifecycle"]
+}
+
+resource "aws_iam_role" "appversion_lifecycle" {
+  name               = "${module.label.id}"
+  count              = "${var.create_service_role == "true" ? 1 : 0}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "elasticbeanstalk.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "appversion_lifecycle" {
+  name   = "${module.label.id}"
+  role   = "${aws_iam_role.appversion_lifecycle.id}"
+  count  = "${var.create_service_role == "true" ? 1 : 0}"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BucketAccess",
+      "Action": [
+        "s3:Get*",
+        "s3:List*",
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::elasticbeanstalk-*",
+        "arn:aws:s3:::elasticbeanstalk-*/*"
+      ]
+    }
+  ]
+}
+POLICY
+}
+

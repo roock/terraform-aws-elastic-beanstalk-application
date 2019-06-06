@@ -35,6 +35,7 @@ variable "tags" {
 
 variable "appversion_lifecycle_service_role_arn" {
   description = "The service role ARN to use for application version cleanup"
+  default     = ""
 }
 
 variable "appversion_lifecycle_max_count" {
@@ -45,4 +46,9 @@ variable "appversion_lifecycle_max_count" {
 variable "appversion_lifecycle_delete_source_from_s3" {
   default     = "false"
   description = "Delete application versions from S3 source"
+}
+
+variable "create_service_role" {
+  default     = "true"
+  description = "create a app lifecycle service role to delete old versions"
 }
