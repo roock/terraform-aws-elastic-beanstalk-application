@@ -19,4 +19,8 @@ resource "aws_elastic_beanstalk_application" "default" {
     delete_source_from_s3 = "${var.appversion_lifecycle_delete_source_from_s3}"
   }
   tags        = "${module.label.tags}"
+  # because of https://github.com/terraform-providers/terraform-provider-aws/issues/3963
+  lifecycle {
+    ignore_changes = ["tags"]
+  }
 }
