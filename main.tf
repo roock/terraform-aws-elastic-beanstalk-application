@@ -22,12 +22,12 @@ resource "aws_elastic_beanstalk_application" "default" {
 }
 
 data "aws_iam_role" "appversion_lifecycle" {
-  name               = "${module.label.id}"
+  name               = "${module.label.id}-appversion-lifecycle"
   depends_on = ["aws_iam_role.appversion_lifecycle"]
 }
 
 resource "aws_iam_role" "appversion_lifecycle" {
-  name               = "${module.label.id}"
+  name               = "${module.label.id}-appversion-lifecycle"
   count              = "${var.create_service_role == "true" ? 1 : 0}"
 
   assume_role_policy = <<EOF
@@ -47,7 +47,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "appversion_lifecycle" {
-  name   = "${module.label.id}"
+  name   = "${module.label.id}-appversion-lifecycle"
   role   = "${aws_iam_role.appversion_lifecycle.id}"
   count  = "${var.create_service_role == "true" ? 1 : 0}"
 
